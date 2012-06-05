@@ -57,7 +57,7 @@ class Chef
         :short => "-p 'key1=value1;key2=value2...'",
         :long => "--parameters 'key1=value1;key2=value2...'",
         :description => "Parameter values used to create the stack",
-        :proc => Proc.new { |parameters| parameters.split(',') }
+        :proc => Proc.new { |parameters| parameters.split(';') }
         
       option :timeout,
         :short => "-t TIMEOUT_VALUE",
