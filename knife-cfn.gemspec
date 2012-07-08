@@ -12,5 +12,5 @@ Gem::Specification.new do |s|
   s.files = Dir["lib/**/*"]
   s.rubygems_version = "1.6.2"
   s.add_dependency "fog", "~> 1.3"
-  s.add_dependency "chef", "~> 0.10"
+  s.add_dependency "chef", "~> 10"
 end
