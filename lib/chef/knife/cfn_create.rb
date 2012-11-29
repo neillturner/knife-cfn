@@ -97,7 +97,7 @@ class Chef
             exit 1
           else
             message = "Stack #{stack_name} creation started"
-            print "\n#{ui.color(message, :green)}"
+            print "\n#{ui.color(message, :green)}\n"
           end
         end  
       end   
