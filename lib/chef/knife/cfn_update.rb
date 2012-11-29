@@ -17,7 +17,7 @@ require 'chef/knife/cfn_base'
 
 class Chef
   class Knife
-    class CfnCreate < Chef::Knife::CfnBase
+    class CfnUpdate < Chef::Knife::CfnBase
 
       deps do
         require 'fog'
@@ -27,7 +27,7 @@ class Chef
         Chef::Knife::Bootstrap.load_deps
       end
       
-      banner "knife cfn create <stack name> (options)"
+      banner "knife cfn update <stack name> (options)"
  
       option :capabilities,
         :short => "-c CAPABILITY..",
@@ -38,7 +38,7 @@ class Chef
       option :disable_rollback,
         :short => "-d",
         :long => "--disable-rollback",
-        :description => "Flag to disable rollback of created resources when failures are encountered during stack creation. The default value is 'false'",
+        :description => "Flag to disable rollback of updates when failures are encountered. The default value is 'false'",
         :proc => Proc.new { |d| Chef::Config[:knife][:disable_rollback] = "true" }
 
       option :template_file,
@@ -56,19 +56,19 @@ class Chef
       option :parameters,
         :short => "-p 'key1=value1;key2=value2...'",
         :long => "--parameters 'key1=value1;key2=value2...'",
-        :description => "Parameter values used to create the stack",
+        :description => "Parameter values used to update the stack",
         :proc => Proc.new { |parameters| parameters.split(';') }
         
       option :timeout,
         :short => "-t TIMEOUT_VALUE",
         :long => "--timeout TIMEOUT_VALUE",
-        :description => " Stack creation timeout in minutes",
+        :description => " Stack update timeout in minutes",
         :proc => Proc.new { |t| Chef::Config[:knife][:timeout] = t }  
         
       option :template_url,
         :short => "-u TEMPLATE_URL",
         :long => "--template-file TEMPLATE_URL",
-        :description => "Path of the URL that contains the template. This must be a reference to a template in an S3 bucket in the same region that the stack will be created in",
+        :description => "Path of the URL that contains the template. This must be a reference to a template in an S3 bucket in the same region that the stack was created in",
         :proc => Proc.new { |u| Chef::Config[:knife][:template_url] = u }
         
       def run
@@ -85,7 +85,7 @@ class Chef
 	end
         
         begin
-          response = connection.create_stack(stack_name, create_create_def)
+          response = connection.update_stack(stack_name, create_update_def)
           rescue Excon::Errors::BadRequest => e
             i= e.response.body.index("<Message>")
             j = e.response.body.index("</Message>")
@@ -96,13 +96,13 @@ class Chef
             end
             exit 1
           else
-            message = "Stack #{stack_name} creation started"
+            message = "Stack #{stack_name} update started"
             print "\n#{ui.color(message, :green)}\n"
           end
         end  
       end   
       
-      def create_create_def
+      def create_update_def
         create_def = {} 
         template_file = locate_config_value(:template_file)
         if template_file != nil and template_file != ""
