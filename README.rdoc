@@ -50,11 +50,11 @@ Create a cloud formation stack from a template file or Template URL.
 
 Deletes a running cloud formation stack. 
 
-== knife ec2 describe 
+== knife cfn describe 
 
 Outputs a list of stack ids for a stack name and shows their status. 
 
-== knife ec2 events 
+== knife cfn events 
 
 Outputs a list of events for a stack name.
 
