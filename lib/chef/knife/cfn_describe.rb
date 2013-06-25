@@ -27,7 +27,7 @@ class Chef
         Chef::Knife::Bootstrap.load_deps
       end    
 
-      banner "knife cfn describe <stack name>"
+      banner "knife cfn describe [stack name] - lists all stacks if [stack name] is omitted."
 
       def run
         $stdout.sync = true
@@ -35,15 +35,18 @@ class Chef
         validate!
         
         stack_name = @name_args[0]
+        output_mode = "StackId"
+        output_header = "Stack ID"
+
 		
 	if stack_name.nil?
-	  show_usage
-	  ui.error("You must specify a stack name")
-          exit 1
+    @name_args[0] = "__ALL__"
+    output_mode = "StackName"
+    output_header = "Stack Name"
 	end
 
         stack_list = [
-          ui.color('Stack ID', :bold),
+          ui.color(output_header, :bold),
           ui.color('Status', :bold),
           ui.color('Creation Time', :bold),
           ui.color('Disable Rollback', :bold)
@@ -52,9 +55,15 @@ class Chef
         @name_args.each do |stack_name|
           options = {}
           data = Array.new
-	  options['StackName'] = stack_name
+          options['StackName'] = stack_name
+
           begin
-            response = connection.describe_stacks(options)
+            if stack_name == "__ALL__"
+              response = connection.describe_stacks()
+            else
+              response = connection.describe_stacks(options)
+            end
+
             data = response.body['Stacks']
             rescue Excon::Errors::BadRequest => e
               i= e.response.body.index("<Message>")
@@ -67,7 +76,7 @@ class Chef
               exit 1
             else
 	      data.each do |stack|
-                stack_list << stack['StackId']
+                stack_list << stack[output_mode]
                 stack_list << stack['StackStatus']
                 stack_list << stack['CreationTime'].to_s
                 stack_list << stack['DisableRollback'].to_s
@@ -78,7 +87,4 @@ class Chef
         end
       end
     end
-  #end
 end
-
-
