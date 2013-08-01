@@ -54,13 +54,18 @@ Update a cloud formation stack from a template file or Template URL.
 
 Deletes a running cloud formation stack. 
 
-== knife cfn describe [stack name]
+== knife cfn describe [-l / --long ] [stack name]
 
-Outputs a list of stack ids for a stack name and shows their status, or lists all stacks if stack name is omitted.
+Outputs the name, status, creation time and rollback status of a stack, or all stacks if <tt>stack name</tt> is omitted.
+The <tt>--long</tt> (<tt>-l</tt>) parameter shows stack IDs (ARN) instead of friendly names.
 
-== knife cfn events 
+== knife cfn events [ stack name ]
 
 Outputs a list of events for a stack name.
+
+== knife cfn outputs [ stack name ]
+
+Outputs a list of outputs for a stack name.
 
 = LICENSE:
 
