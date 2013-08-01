@@ -17,7 +17,7 @@ require 'chef/knife/cfn_base'
 
 class Chef
   class Knife
-    class CfnDescribe < Chef::Knife::CfnBase
+    class CfnOutputs < Chef::Knife::CfnBase
 
       deps do
         require 'fog'
@@ -27,12 +27,7 @@ class Chef
         Chef::Knife::Bootstrap.load_deps
       end
 
-      banner "knife cfn describe [stack name] - lists all stacks if [stack name] is omitted."
-
-      option :long_names,
-             :short  => "-l",
-             :long   => "--long",
-             :description  => "Use long stack names (ARN) instead of friendly names"
+      banner "knife cfn outputs <stack name>"
 
       def run
         $stdout.sync = true
@@ -41,37 +36,26 @@ class Chef
 
         stack_name = @name_args[0]
         if stack_name.nil?
-          @name_args[0] = "__ALL__"
+          show_usage
+          ui.error("You must specify a stack name")
+          exit 1
         end
 
-        output_mode = "StackName"
-        output_header = "Stack Name"
-
-        if !config[:long_names].nil?
-          output_mode = "StackId"
-          output_header = "Stack ID"
-        end
-
-        stack_list = [
-            ui.color(output_header, :bold),
-            ui.color('Status', :bold),
-            ui.color('Creation Time', :bold),
-            ui.color('Disable Rollback', :bold)
+        events_list = [
+            ui.color("Stack", :bold),
+            ui.color('Output Key', :bold),
+            ui.color('Output Value', :bold),
+            ui.color('Description', :bold)
         ]
 
         @name_args.each do |stack_name|
           options = {}
+          options["StackName"] = stack_name
           data = Array.new
-          options['StackName'] = stack_name
-
           begin
-            if stack_name == "__ALL__"
-              response = connection.describe_stacks()
-            else
-              response = connection.describe_stacks(options)
-            end
+            response = connection.describe_stacks(options)
+            data = response.body["Stacks"]
 
-            data = response.body['Stacks']
           rescue Excon::Errors::BadRequest => e
             i= e.response.body.index("<Message>")
             j = e.response.body.index("</Message>")
@@ -83,16 +67,24 @@ class Chef
             exit 1
           else
             data.each do |stack|
-              stack_list << stack[output_mode]
-              stack_list << stack['StackStatus']
-              stack_list << stack['CreationTime'].to_s
-              stack_list << stack['DisableRollback'].to_s
+              row1 = true
+              events_list << stack["StackName"]
+              stack["Outputs"].each do |output|
+                if !row1
+                  events_list << ""
+                end
+                events_list << output["OutputKey"]
+                events_list << output["OutputValue"]
+                events_list << output["Description"]
+                row1 = false
+              end
             end
-
-            puts ui.list(stack_list, :uneven_columns_across, 4)
+            puts ui.list(events_list, :uneven_columns_across, 4)
           end
         end
       end
     end
   end
 end
+
+
