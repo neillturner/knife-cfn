@@ -29,6 +29,12 @@ class Chef
 
       banner "knife cfn outputs <stack name>"
 
+      option :output_parameter_format,
+             :short    => "-o",
+             :long     => "--output_parameter_format",
+             :description => "Stack output is formatted in a suitable syntax to use for parameters for another stack",
+             :proc     => Proc.new{ |o| Chef::Config[:knife][:output_format] = "parameter" }
+
       def run
         $stdout.sync = true
 
@@ -66,20 +72,32 @@ class Chef
             end
             exit 1
           else
+            parameter_output=""
+            delim=""
             data.each do |stack|
               row1 = true
+              parameter_output += delim
+              delim="\n"
+              parameter_output+=stack["StackName"] + ": "
               events_list << stack["StackName"]
               stack["Outputs"].each do |output|
                 if !row1
                   events_list << ""
+                  parameter_output += ";"
                 end
                 events_list << output["OutputKey"]
                 events_list << output["OutputValue"]
                 events_list << output["Description"]
+                parameter_output += output["OutputKey"] + "=" + output["OutputValue"]
                 row1 = false
               end
             end
-            puts ui.list(events_list, :uneven_columns_across, 4)
+            if locate_config_value(:output_format) == "parameter"
+              puts parameter_output
+            else
+              puts ui.list(events_list, :uneven_columns_across, 4)
+            end
+
           end
         end
       end
