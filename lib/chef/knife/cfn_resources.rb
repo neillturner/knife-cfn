@@ -27,7 +27,7 @@ class Chef
         Chef::Knife::Bootstrap.load_deps
       end
 
-      banner "knife cfn resources <stack name>"
+      banner "knife cfn resources <stack name> [logical resource id]"
 
       def run
         $stdout.sync = true
@@ -35,6 +35,7 @@ class Chef
         validate!
 
         stack_name = @name_args[0]
+        logical_resource_id = @name_args[1]
 
         if stack_name.nil?
           show_usage
@@ -48,31 +49,35 @@ class Chef
             ui.color('Resource Type', :bold),
             ui.color('Resource Status', :bold)
         ]
-        @name_args.each do |stack_name|
-          data = Array.new
-          begin
-            response = connection.describe_stack_resources({"StackName" => stack_name})
-            ui.info("response: #{response}")
-            data = response.body['StackResources']
-          rescue Excon::Errors::BadRequest => e
-            i= e.response.body.index("<Message>")
-            j = e.response.body.index("</Message>")
-            if !i.nil? and !j.nil?
-              ui.error(e.response.body[i+9,j-i-9])
-            else
-              print "\n#{e.response.body}"
-            end
-            exit 1
-          else
-            data.each do |resource|
-              resources_list << resource['LogicalResourceId']
-              resources_list << resource['PhysicalResourceId']
-              resources_list << resource['ResourceType']
-              resources_list << resource['ResourceStatus']
-            end
-            puts ui.list(resources_list, :uneven_columns_across, 4)
-          end
+
+        connection_params = { "StackName" => stack_name }
+        if !logical_resource_id.nil?
+          connection_params["LogicalResourceId"] = logical_resource_id
         end
+
+        data = Array.new
+        begin
+          response = connection.describe_stack_resources(connection_params)
+          data = response.body['StackResources']
+        rescue Excon::Errors::BadRequest => e
+          i= e.response.body.index("<Message>")
+          j = e.response.body.index("</Message>")
+          if !i.nil? and !j.nil?
+            ui.error(e.response.body[i+9,j-i-9])
+          else
+            print "\n#{e.response.body}"
+          end
+          exit 1
+        else
+          data.each do |resource|
+            resources_list << resource['LogicalResourceId']
+            resources_list << resource['PhysicalResourceId']
+            resources_list << resource['ResourceType']
+            resources_list << resource['ResourceStatus']
+          end
+          puts ui.list(resources_list, :uneven_columns_across, 4)
+        end
+
       end
     end
   end
