@@ -1,10 +1,11 @@
 $:.unshift File.expand_path('../../lib', __FILE__)
 require 'chef'
-require 'knife-cnf/cfn_base'
-require 'knife-cnf/cfn_create'
-require 'knife-cnf/cfn_delete'
-require 'knife-cnf/cfn_describe'
-require 'knife-cnf/cfn_events'
-require 'knife-cnf/cfn_outputs'
-require 'knife-cnf/cfn_validate'
+require 'knife-cfn/cfn_base'
+require 'knife-cfn/cfn_create'
+require 'knife-cfn/cfn_delete'
+require 'knife-cfn/cfn_describe'
+require 'knife-cfn/cfn_events'
+require 'knife-cfn/cfn_resources'
+require 'knife-cfn/cfn_outputs'
+require 'knife-cfn/cfn_validate'
 
