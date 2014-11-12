@@ -63,6 +63,12 @@ The <tt>--long</tt> (<tt>-l</tt>) parameter shows stack IDs (ARN) instead of fri
 
 Outputs a list of events for a stack name.
 
+== knife cfn resources [ stack name ] [ logical resource id ]
+
+Outputs the logical resource ID, physical resource ID, resource type and status for all resources of a stack. If <tt>logical resource
+id</tt> is specified, then only the details of that resource is shown. A logical resource ID is reference given to a resource in the cloudformation
+template, under the "Resources" section.
+
 == knife cfn outputs [ -o ] [ stack name ]
 
 Outputs a list of outputs for a stack name. If <tt>-o</tt> option is specified, then output will be formatted in the same syntax as parameters for cfn create / update

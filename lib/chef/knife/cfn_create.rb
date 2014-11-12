@@ -30,7 +30,7 @@ class Chef
       banner "knife cfn create <stack name> (options)"
  
       option :capabilities,
-        :short => "-c CAPABILITY..",
+        :short => "-C CAPABILITY..",
         :long => "--capabilities CAPABILITY1,CAPABILITY2,CAPABILITY3..",
         :description => "The explicitly approved capabilities that may be used during this stack creation",
         :proc => Proc.new { |capabilities| capabilities.split(',') }  

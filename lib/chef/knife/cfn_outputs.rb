@@ -47,7 +47,7 @@ class Chef
           exit 1
         end
 
-        events_list = [
+        outputs_list = [
             ui.color("Stack", :bold),
             ui.color('Output Key', :bold),
             ui.color('Output Value', :bold),
@@ -79,15 +79,15 @@ class Chef
               parameter_output += delim
               delim="\n"
               parameter_output+=stack["StackName"] + ": "
-              events_list << stack["StackName"]
+              outputs_list << stack["StackName"]
               stack["Outputs"].each do |output|
                 if !row1
-                  events_list << ""
+                  outputs_list << ""
                   parameter_output += ";"
                 end
-                events_list << output["OutputKey"]
-                events_list << output["OutputValue"]
-                events_list << output["Description"]
+                outputs_list << output["OutputKey"]
+                outputs_list << output["OutputValue"]
+                outputs_list << output["Description"]
                 parameter_output += output["OutputKey"] + "=" + output["OutputValue"]
                 row1 = false
               end
@@ -95,7 +95,7 @@ class Chef
             if locate_config_value(:output_format) == "parameter"
               puts parameter_output
             else
-              puts ui.list(events_list, :uneven_columns_across, 4)
+              puts ui.list(outputs_list, :uneven_columns_across, 4)
             end
 
           end
