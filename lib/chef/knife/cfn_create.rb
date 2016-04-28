@@ -30,7 +30,7 @@ class Chef
       banner "knife cfn create <stack name> (options)"
 
       option :capabilities,
-        :short => "-C CAPABILITY..",
+        :short => "-c CAPABILITY..",
         :long => "--capabilities CAPABILITY1,CAPABILITY2,CAPABILITY3..",
         :description => "The explicitly approved capabilities that may be used during this stack creation",
         :proc => Proc.new { |capabilities| capabilities.split(',') }
@@ -38,7 +38,7 @@ class Chef
       option :disable_rollback,
         :short => "-d",
         :long => "--disable-rollback",
-        :description => "Flag to disable rollback of created resources when failures are encountered during stack creation. The default value is 'false'",
+        :description => "Flag to disable rollback of created resources when failures are encountered. The default value is 'false'",
         :proc => Proc.new { |d| Chef::Config[:knife][:disable_rollback] = "true" }
 
       option :template_file,
@@ -70,6 +70,46 @@ class Chef
         :long => "--template-file TEMPLATE_URL",
         :description => "Path of the URL that contains the template. This must be a reference to a template in an S3 bucket in the same region that the stack will be created in",
         :proc => Proc.new { |u| Chef::Config[:knife][:template_url] = u }
+
+      option :aws_credential_file,
+        :long => "--aws-credential-file FILE",
+        :description => "File containing AWS credentials as used by aws cmdline tools",
+        :proc => Proc.new { |key| Chef::Config[:knife][:aws_credential_file] = key }
+
+      option :aws_profile,
+        :long => "--aws-profile PROFILE",
+        :description => "AWS profile, from credential file, to use",
+        :default => 'default',
+        :proc => Proc.new { |key| Chef::Config[:knife][:aws_profile] = key }
+
+      option :aws_access_key_id,
+        :short => "-A ID",
+        :long => "--aws-access-key-id KEY",
+        :description => "Your AWS Access Key ID",
+        :proc => Proc.new { |key| Chef::Config[:knife][:aws_access_key_id] = key }
+
+      option :aws_secret_access_key,
+        :short => "-K SECRET",
+        :long => "--aws-secret-access-key SECRET",
+        :description => "Your AWS API Secret Access Key",
+        :proc => Proc.new { |key| Chef::Config[:knife][:aws_secret_access_key] = key }
+
+      option :aws_session_token,
+        :long => "--aws-session-token TOKEN",
+        :description => "Your AWS Session Token, for use with AWS STS Federation or Session Tokens",
+        :proc => Proc.new { |key| Chef::Config[:knife][:aws_session_token] = key }
+
+      option :region,
+        :long => "--region REGION",
+        :description => "Your AWS region",
+        :proc => Proc.new { |key| Chef::Config[:knife][:region] = key }
+
+      option :use_iam_profile,
+        :long => "--use-iam-profile",
+        :description => "Use IAM profile assigned to current machine",
+        :boolean => true,
+        :default => false,
+        :proc => Proc.new { |key| Chef::Config[:knife][:use_iam_profile] = key }
 
       def run
         $stdout.sync = true
